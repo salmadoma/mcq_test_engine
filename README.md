@@ -1,11 +1,27 @@
 # MCQ Test Engine #
-REST API Template and endpoints follows this [schema](https://jira-dowhile.atlassian.net/wiki/spaces/TGPT/pages/734134291/Relational+Database+Sample).
+
+## System Description ##
+
+Our system can support the following scenario
+
+● Student can enroll in exam by entering his basic info and choose the topic
+he wants to take the exam for, and he should receive all question in this
+topic
+
+● The question and their choices should be shuffled every time I enroll into
+an exam, which means every time I enroll I get the questions in different
+order and the choices of each question in a different order.
+
+● When a student sends the answers to the MCQ service which marks whether it is correct or not and sends it to the scoring service
+without calculating the score and scoring service should calculate the
+score.
+
 ## Technologies ##
 * Python (3.9)
 * Django (4.1)
 * Docker (20.10.14)
 * Docker Compose (1.29.2)
-* PostgreSQL (12.0)
+* MongoDB
 * Makefile 
 
 ## Requirements ##
@@ -19,17 +35,26 @@ REST API Template and endpoints follows this [schema](https://jira-dowhile.atlas
 
 * For development
     * Install `requirements.txt` file
+  
 ## Quick Start ##
-1. Clone the repository: `git clone git@bitbucket.org:dowhile-csab/templates-python.git`.
-1. change directory to `cd `cd rest-api-template/`.
+1. Clone the repository: `git clone https://github.com/salmadoma/mcq_test_engine.git`.
+1. change directory to `cd mcq_test_engine/`.
 1. Generate .env file with: `make generate_env [development/production]` (defaults to development).
 1. Fill the needed values in .env file (if you're in production environment).
-1. Build docker image (services): `make build`.
-1. Launch the system: `make up` (to start all services).
+1. Launch the system: `make run` (to start all services).
 1. Go to browser (default: <http://127.0.0.1:8000/v1/core/>). 
 `just defines needed steps to integrate with Django framework`
 1. You can use Swagger by using (default: <http://127.0.0.1:8000/v1/core/doc/>). 
-1. To shutdown: `make down` or `make down-v` (to remove volumes as well).
+1. To shut down: `make down`  (to remove volumes as well).
 
 ## Make Commands ##
 [Makefile](Makefile) is available on the root directory to help running common CLI commands.
+
+
+## TODO ##
+
+1. logging
+2. unittests
+3. docstrings and typehint
+4. sphinxes
+5. swagger
