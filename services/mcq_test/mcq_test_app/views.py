@@ -9,8 +9,6 @@ from rest_framework.response import Response
 from .serializers import *
 from .kafka_producer import store_in_kafka
 
-# 1- submit: partial submit of quiz with the one correct answer
-
 logger = logging.getLogger('mcq_test_app')
 logger.setLevel(os.getenv('LOGGING_LEVEL'))
 quiz_kafka_topic = os.getenv('KAFKA_TOPIC', "quiz")
@@ -46,6 +44,11 @@ def api_overview(request):
 
 @api_view(['GET'])
 def list_topics(request):
+    """ List all topics.
+
+    :param request: request object
+    :return Response: Response object.
+    """
     # checking for the parameters from the URL
     if request.query_params:
         topics = Topic.objects.filter(**request.query_param.dict())
@@ -60,6 +63,11 @@ def list_topics(request):
 
 @api_view(['GET'])
 def get_topic(request, _id):
+    """ Get topic by id.
+
+    :param request: request object
+    :return Response: Response object.
+    """
     # checking for the parameters from the URL
     try:
         topic = Topic.objects.get(id=_id)
@@ -71,6 +79,11 @@ def get_topic(request, _id):
 
 @api_view(['POST'])
 def create_topic(request):
+    """ Create topic.
+
+    :param request: request object
+    :return Response: Response object.
+    """
     topic = TopicSerializer(data=request.data)
     if topic.is_valid():
         topic.save()
@@ -81,6 +94,12 @@ def create_topic(request):
 
 @api_view(['PATCH'])
 def update_topic(request, _id):
+    """ Update topic by id.
+
+    :param request: request object
+    :param _id: object _id
+    :return Response: Response object.
+    """
     try:
         topic = Topic.objects.get(id=_id)
         topic_serializer = TopicSerializer(instance=topic, data=request.data, partial=True)
@@ -95,6 +114,12 @@ def update_topic(request, _id):
 
 @api_view(['DELETE'])
 def delete_topic(request, _id):
+    """ Delete topic by id.
+
+    :param request: request object
+    :param _id: object _id
+    :return Response: Response object.
+    """
     try:
         topic = Topic.objects.get(id=_id)
         topic.delete()
@@ -109,6 +134,11 @@ def delete_topic(request, _id):
 
 @api_view(['GET'])
 def list_questions(request):
+    """ List all topics.
+
+    :param request: request object
+    :return Response: Response object.
+    """
     # checking for the parameters from the URL
     if request.query_params:
         questions = Question.objects.filter(**request.query_param.dict())
@@ -123,6 +153,12 @@ def list_questions(request):
 
 @api_view(['GET'])
 def get_question(request, _id):
+    """ Get question by id.
+
+    :param request: request object
+    :param _id: object _id
+    :return Response: Response object.
+    """
     # checking for the parameters from the URL
     try:
         question = Question.objects.get(id=_id)
@@ -134,6 +170,11 @@ def get_question(request, _id):
 
 @api_view(['POST'])
 def create_question(request):
+    """ Create question.
+
+    :param request: request object
+    :return Response: Response object.
+    """
     question = QuestionSerializer(data=request.data)
     if question.is_valid():
         question.save()
@@ -144,6 +185,12 @@ def create_question(request):
 
 @api_view(['PATCH'])
 def update_question(request, _id):
+    """ Update question by id.
+
+    :param request: request object
+    :param _id: object _id
+    :return Response: Response object.
+    """
     try:
         question = Question.objects.get(id=_id)
         question_serializer = QuestionSerializer(instance=question, data=request.data, partial=True)
@@ -158,6 +205,12 @@ def update_question(request, _id):
 
 @api_view(['DELETE'])
 def delete_question(request, _id):
+    """ Delete question by id.
+
+    :param request: request object
+    :param _id: object _id
+    :return Response: Response object.
+    """
     try:
         question = Question.objects.get(id=_id)
         question.delete()
@@ -172,6 +225,11 @@ def delete_question(request, _id):
 
 @api_view(['GET'])
 def list_answers(request):
+    """ List all answers.
+
+    :param request: request object
+    :return Response: Response object.
+    """
     # checking for the parameters from the URL
     if request.query_params:
         answers = Answer.objects.filter(**request.query_param.dict())
@@ -186,6 +244,12 @@ def list_answers(request):
 
 @api_view(['GET'])
 def get_answer(request, _id):
+    """ Get answer by id.
+
+    :param request: request object
+    :param _id: object _id
+    :return Response: Response object.
+    """
     # checking for the parameters from the URL
     try:
         answer = Answer.objects.get(id=_id)
@@ -197,6 +261,11 @@ def get_answer(request, _id):
 
 @api_view(['POST'])
 def create_answer(request):
+    """ Create answer.
+
+    :param request: request object
+    :return Response: Response object.
+    """
     answer = AnswerSerializer(data=request.data)
     if answer.is_valid():
         answer.save()
@@ -207,6 +276,12 @@ def create_answer(request):
 
 @api_view(['PATCH'])
 def update_answer(request, _id):
+    """ Update answer by id.
+
+    :param request: request object
+    :param _id: object _id
+    :return Response: Response object.
+    """
     try:
         answer = Answer.objects.get(id=_id)
         answer_serializer = AnswerSerializer(instance=answer, data=request.data, partial=True)
@@ -221,6 +296,12 @@ def update_answer(request, _id):
 
 @api_view(['DELETE'])
 def delete_answer(request, _id):
+    """ Delete answer by id.
+
+    :param request: request object
+    :param _id: object _id
+    :return Response: Response object.
+    """
     try:
         answer = Answer.objects.get(id=_id)
         answer.delete()
@@ -235,6 +316,11 @@ def delete_answer(request, _id):
 
 @api_view(['GET'])
 def list_students(request):
+    """ List all students.
+
+    :param request: request object
+    :return Response: Response object.
+    """
     # checking for the parameters from the URL
     if request.query_params:
         students = Student.objects.filter(**request.query_param.dict())
@@ -249,6 +335,12 @@ def list_students(request):
 
 @api_view(['GET'])
 def get_student(request, _id):
+    """ Get student by id.
+
+    :param request: request object
+    :param _id: object _id
+    :return Response: Response object.
+    """
     # checking for the parameters from the URL
     try:
         student = Student.objects.get(id=_id)
@@ -260,7 +352,12 @@ def get_student(request, _id):
 
 @api_view(['POST'])
 def create_student(request):
-    # # # validating for already existing data
+    """ Create student.
+
+    :param request: request object
+    :return Response: Response object.
+    """
+    #  validating for already existing data
     if Student.objects.filter(phone=request.data.get("phone")):
         return Response({"error": "This phone already exists"})
     student = StudentSerializer(data=request.data)
@@ -274,6 +371,12 @@ def create_student(request):
 
 @api_view(['PATCH'])
 def update_student(request, _id):
+    """ Update student by id.
+
+    :param request: request object
+    :param _id: object _id
+    :return Response: Response object.
+    """
     try:
         student = Student.objects.get(id=_id)
         student_serializer = StudentSerializer(instance=student, data=request.data, partial=True)
@@ -288,6 +391,12 @@ def update_student(request, _id):
 
 @api_view(['DELETE'])
 def delete_student(request, _id):
+    """ Delete student by id.
+
+    :param request: request object
+    :param _id: object _id
+    :return Response: Response object.
+    """
     try:
         student = Student.objects.get(id=_id)
         student.delete()
@@ -303,6 +412,11 @@ def delete_student(request, _id):
 
 @api_view(['POST'])
 def enroll(request):
+    """ Enroll in exam for specific student with specific topic.
+
+    :param request: request object
+    :return Response: Response object with shuffled questions and answers.
+    """
     result = {}
     try:
         Quiz.objects.get(topic=request.data.get("topic"), student=request.data.get("student"))
@@ -322,6 +436,11 @@ def enroll(request):
 
 @api_view(['POST'])
 def submit(request):
+    """ Submit exam answers for specific student with specific topic.
+
+    :param request: request object
+    :return Response: Response object with marked answers.
+    """
     student = request.data.get('student')
     topic = request.data.get('topic')
     answers = request.data.get('answers')
@@ -339,6 +458,13 @@ def submit(request):
 
 
 def _mark_quiz(topic, answers):
+    """ Mark student exam for specific topic.
+
+    :param topic: topic id
+    :param answers: Submitted answers for each question.
+    :return num_of_questions: Number of question in the current exam.
+    :return marked_answers: Marked answers of question in the current exam.
+    """
     questions = Topic.objects.get(id=topic).get_questions()
     num_of_questions = len(questions)
     marked_answers = {}

@@ -12,7 +12,11 @@ logger.setLevel(os.getenv('LOGGING_LEVEL'))
 
 
 def kafka_consumer(topic: str):
-    """TBW."""
+    """ Consume kafka from specified topic.
+
+    :param topic: topic name
+    :return consumer: consumer object.
+    """
     try:
         broker = os.getenv('CONFLUENT_KAFKA_BROKERS')
         consumer = KafkaConsumer(

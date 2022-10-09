@@ -15,13 +15,6 @@ class QuestionSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class StudentAnswerSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Answer
-        fields = ("content", "question")
-
-
 class AnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Answer
@@ -35,7 +28,6 @@ class StudentSerializer(serializers.ModelSerializer):
 
 
 class QuizSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Quiz
         fields = '__all__'

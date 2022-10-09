@@ -50,11 +50,3 @@ score.
 ## Make Commands ##
 [Makefile](Makefile) is available on the root directory to help running common CLI commands.
 
-
-## TODO ##
-
-1. logging
-2. unittests
-3. docstrings and typehint
-4. sphinxes
-5. swagger

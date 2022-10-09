@@ -1,7 +1,6 @@
 import logging
 import os
 
-from django.shortcuts import render
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -27,6 +26,11 @@ def api_overview(request):
 
 @api_view(['GET'])
 def student_result_in_topic(request):
+    """ Calculate Student’s result in specific topic.
+
+    :param request: request object
+    :return Response: Response object with quiz data.
+    """
     student = request.query_params.get('student')
     topic = request.query_params.get('topic')
     try:
@@ -42,6 +46,11 @@ def student_result_in_topic(request):
 
 @api_view(['GET'])
 def student_average_in_all_topics(request):
+    """ Calculate Student’s average result in all topics.
+
+    :param request: request object
+    :return Response: Response object with quiz data.
+    """
     student = request.query_params.get('student')
     init_quiz_thread()
     quiz_objects = Quiz.objects.filter(student=student)
@@ -56,6 +65,11 @@ def student_average_in_all_topics(request):
 
 @api_view(['GET'])
 def average_result_in_topic(request):
+    """ Calculate topic’s average result.
+
+    :param request: request object
+    :return Response: Response object with quiz data.
+    """
     topic = request.query_params.get('topic')
     init_quiz_thread()
     quiz_objects = Quiz.objects.filter(topic=topic)
@@ -69,6 +83,11 @@ def average_result_in_topic(request):
 
 @api_view(['GET'])
 def highest_score_in_topic(request):
+    """ Calculate topic’s highest_score for all exams.
+
+    :param request: request object
+    :return Response: Response object with quiz data.
+    """
     topic = request.query_params.get('topic')
     init_quiz_thread()
     quiz_objects = Quiz.objects.filter(topic=topic)
