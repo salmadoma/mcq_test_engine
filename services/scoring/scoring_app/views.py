@@ -1,12 +1,24 @@
+import logging
+import os
+import threading
+
 from django.shortcuts import render
+from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+
+from .serializers import *
+from .utils import _score
+
+logger = logging.getLogger('scoring_app')
+logger.setLevel(os.getenv('LOGGING_LEVEL'))
 
 
 # 4- get result of quiz for one student and one topic
 # 5- get average of quiz for one topic
 # 6- get highest score of quiz for one topic
 # 7- get average of quiz for one student in all topics
+
 
 @api_view(['GET'])
 def api_overview(request):
@@ -24,9 +36,16 @@ def api_overview(request):
 def student_result_in_topic(request):
     student = request.query_params.get('student')
     topic = request.query_params.get('topic')
-    print(student)
-    print(topic)
-    return Response("successes")
+    try:
+        thread = threading.Thread(target=_score)
+        thread.start()
+        quiz = Quiz.objects.get(student=student, topic=topic)
+        quiz = QuizSerializer(quiz, many=False)
+        logger.info(f"quiz data: {quiz} retrieved successfully")
+        return Response(quiz.data)
+    except Quiz.DoesNotExist:
+        logger.error(f"quiz does not exist")
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(['GET'])

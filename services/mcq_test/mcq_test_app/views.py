@@ -1,17 +1,19 @@
+import logging
+import os
 import random
 
-from django.shortcuts import render
-from django.http import HttpResponse
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from django.core import serializers as core_serializers
 
-from .models import *
 from .serializers import *
-
+from .kafka_producer import store_in_kafka
 
 # 1- submit: partial submit of quiz with the one correct answer
+
+logger = logging.getLogger('mcq_test_app')
+logger.setLevel(os.getenv('LOGGING_LEVEL'))
+quiz_kafka_topic = os.getenv('KAFKA_TOPIC', "quiz")
 
 
 @api_view(['GET'])
@@ -302,36 +304,47 @@ def delete_student(request, _id):
 @api_view(['POST'])
 def enroll(request):
     result = {}
-    quiz = QuizSerializer(data=request.data)
-    if quiz.is_valid():
-        quiz.save()
-        questions = list(Topic.objects.get(id=request.data.get("topic")).get_questions())
-        random.shuffle(questions)
-        for idx, question in enumerate(questions):
-            answers = list(question.get_answers())
-            random.shuffle(answers)
-            result[str(question)] = list(map(str, answers))
-        return Response(result)
-    else:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+    try:
+        Quiz.objects.get(topic=request.data.get("topic"), student=request.data.get("student"))
+    except Quiz.DoesNotExist:
+        quiz = QuizSerializer(data=request.data)
+        if quiz.is_valid():
+            quiz.save()
+
+    questions = list(Topic.objects.get(id=request.data.get("topic")).get_questions())
+    random.shuffle(questions)
+    for idx, question in enumerate(questions):
+        answers = list(question.get_answers())
+        random.shuffle(answers)
+        result[str(question)] = list(map(str, answers))
+    return Response(result)
 
 
 @api_view(['POST'])
 def submit(request):
-    print(request.data)
-    return Response({"testt": 1})
-    # result = {}
-    # quiz = QuizSerializer(data=request.data)
-    # if quiz.is_valid():
-    #     quiz.save()
-    #     questions = list(Topic.objects.get(id=request.data.get("topic")).get_questions())
-    #     random.shuffle(questions)
-    #     for idx, question in enumerate(questions):
-    #         answers = list(question.get_answers())
-    #         random.shuffle(answers)
-    #         result[str(question)] = list(map(str, answers))
-    #     return Response(result)
-    # else:
-    #     return Response(status=status.HTTP_404_NOT_FOUND)
+    student = request.data.get('student')
+    topic = request.data.get('topic')
+    answers = request.data.get('answers')
+    try:
+        num_of_questions, marked_answers = _mark_quiz(topic, answers)
+    except Topic.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    except Answer.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    quiz = [
+        {"student": student, "topic": topic, "num_of_questions": num_of_questions, "marked_answers": marked_answers}]
+    store_in_kafka(quiz, quiz_kafka_topic)
+    logger.info(f"data pushed into kafka topic: {quiz_kafka_topic}")
+    return Response(quiz)
+
+
+def _mark_quiz(topic, answers):
+    questions = Topic.objects.get(id=topic).get_questions()
+    num_of_questions = len(questions)
+    marked_answers = {}
+    for answer in answers.values():
+        answer_object = Answer.objects.get(id=answer)
+        marked_answers[answer] = answer_object.correct
+    return num_of_questions, marked_answers
 
 # endregion
