@@ -7,12 +7,15 @@ services:
       dockerfile: packaging/docker/mcq_test/Dockerfile
     ports:
       - ${MCQ_TEST_SERVER_PORT}:${MCQ_TEST_SERVER_PORT}
+    environment:
+      KAFKA_BROKERS: ${CONFLUENT_KAFKA_BROKERS}
     env_file:
       - ./.env
     volumes:
       - ./services/mcq_test:/app/
     depends_on:
       - mcq-test-mongo-db
+      - kafka
     restart: on-failure
     healthcheck:
       test: curl -s ${DJANGO_ALLOWED_HOSTS}:${MCQ_TEST_SERVER_PORT} || exit 1
@@ -32,6 +35,8 @@ services:
       - ./services/scoring:/app/
     depends_on:
       - mcq-test-mongo-db
+      - kafka
+      - mcq_test
     restart: on-failure
     healthcheck:
       test: curl -s ${DJANGO_ALLOWED_HOSTS}:${SCORING_SERVER_PORT} || exit 1
@@ -65,5 +70,49 @@ services:
       - MONGO_LOG_DIR=/dev/null
     command: mongod --port ${SCORING_MONGO_DB_PORT}
 
+  kafka:
+    image: 'bitnami/kafka:latest'
+    hostname: kafka
+    restart: unless-stopped
+    ports:
+      - ${KAFKA_PORT_INTERNAL_1}:${KAFKA_PORT_INTERNAL_1}
+    expose:
+      - ${KAFKA_PORT_INTERNAL_1}
+      - ${KAFKA_PORT_INTERNAL_2}
+      - ${KAFKA_PORT_INTERNAL_3}
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_ZOOKEEPER_CONNECT=${ZOOKEEPER_HOST_EXTERNAL}:${ZOOKEEPER_PORT_INTERNAL}
+      - ALLOW_PLAINTEXT_LISTENER=yes
+    #    volumes:
+    #      - ./kafka_data:/bitnami/
+    depends_on:
+      - zookeeper
+    healthcheck:
+      test: netstat tuanp | grep ${KAFKA_PORT_INTERNAL_1} || exit 1
+      interval: 2s
+      timeout: 10s
+      retries: 30
+
+  zookeeper:
+    image: 'bitnami/zookeeper:latest'
+    hostname: zookeeper
+    restart: unless-stopped
+    ports:
+      - ${ZOOKEEPER_PORT_INTERNAL}:${ZOOKEEPER_PORT_INTERNAL}
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    #volumes:
+    #  - ./zookeeper_data:/bitnami
+    healthcheck:
+      test: echo stat | nc ${ZOOKEEPER_HOST_INTERNAL} ${ZOOKEEPER_PORT_INTERNAL} || exit 1
+      interval: 2s
+      timeout: 10s
+      retries: 30
+
+
+
 volumes:
   mysql_data:
+  zookeeper_data:
+  kafka_data:
