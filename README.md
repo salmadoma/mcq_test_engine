@@ -44,7 +44,6 @@ score.
 1. Launch the system: `make run` (to start all services).
 1. Go to browser (default: <http://127.0.0.1:8000/v1/core/>). 
 `just defines needed steps to integrate with Django framework`
-1. You can use Swagger by using (default: <http://127.0.0.1:8000/v1/core/doc/>). 
 1. To shut down: `make down`  (to remove volumes as well).
 
 ## Make Commands ##
