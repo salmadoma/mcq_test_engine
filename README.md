@@ -42,7 +42,7 @@ score.
 1. Generate .env file with: `make generate_env [development/production]` (defaults to development).
 1. Fill the needed values in .env file (if you're in production environment).
 1. Launch the system: `make run` (to start all services).
-1. Go to browser (default: <http://127.0.0.1:8000/v1/core/>). 
+1. Go to browser (default: <http://127.0.0.1:8000/>). 
 `just defines needed steps to integrate with Django framework`
 1. To shut down: `make down`  (to remove volumes as well).
 
