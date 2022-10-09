@@ -1,6 +1,5 @@
 import logging
 import os
-import threading
 
 from django.shortcuts import render
 from rest_framework import status
@@ -8,16 +7,10 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from .serializers import *
-from .utils import _score
+from .utils import init_quiz_thread, calc_avg, calc_max
 
 logger = logging.getLogger('scoring_app')
 logger.setLevel(os.getenv('LOGGING_LEVEL'))
-
-
-# 4- get result of quiz for one student and one topic
-# 5- get average of quiz for one topic
-# 6- get highest score of quiz for one topic
-# 7- get average of quiz for one student in all topics
 
 
 @api_view(['GET'])
@@ -37,8 +30,7 @@ def student_result_in_topic(request):
     student = request.query_params.get('student')
     topic = request.query_params.get('topic')
     try:
-        thread = threading.Thread(target=_score)
-        thread.start()
+        init_quiz_thread()
         quiz = Quiz.objects.get(student=student, topic=topic)
         quiz = QuizSerializer(quiz, many=False)
         logger.info(f"quiz data: {quiz} retrieved successfully")
@@ -51,19 +43,38 @@ def student_result_in_topic(request):
 @api_view(['GET'])
 def student_average_in_all_topics(request):
     student = request.query_params.get('student')
-    print(student)
-    return Response()
+    init_quiz_thread()
+    quiz_objects = Quiz.objects.filter(student=student)
+    if quiz_objects:
+        quizzes = QuizSerializer(quiz_objects, many=True)
+        avg = calc_avg(quizzes.data, "score")
+        logger.info(f"quiz data: {quizzes} retrieved successfully")
+        return Response({"student": student, "average": avg})
+    else:
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(['GET'])
 def average_result_in_topic(request):
     topic = request.query_params.get('topic')
-    print(topic)
-    return Response()
+    init_quiz_thread()
+    quiz_objects = Quiz.objects.filter(topic=topic)
+    if quiz_objects:
+        quizzes = QuizSerializer(quiz_objects, many=True)
+        avg = calc_avg(quizzes.data, "score")
+        return Response({"topic": topic, "average": avg})
+    else:
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(['GET'])
 def highest_score_in_topic(request):
     topic = request.query_params.get('topic')
-    print(topic)
-    return Response()
+    init_quiz_thread()
+    quiz_objects = Quiz.objects.filter(topic=topic)
+    if quiz_objects:
+        quizzes = QuizSerializer(quiz_objects, many=True)
+        highest_quiz_score = calc_max(quizzes.data, "score")
+        return Response(highest_quiz_score)
+    else:
+        return Response(status=status.HTTP_404_NOT_FOUND)
